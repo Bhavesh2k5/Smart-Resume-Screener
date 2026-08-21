@@ -5,7 +5,29 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'md-background': '#FFFBFE',
+        'md-on-background': '#1C1B1F',
+        'md-surface': '#FFFBFE',
+        'md-on-surface': '#1C1B1F',
+        'md-primary': '#6750A4',
+        'md-on-primary': '#FFFFFF',
+        'md-secondary-container': '#E8DEF8',
+        'md-on-secondary-container': '#1D192B',
+        'md-tertiary': '#7D5260',
+        'md-surface-container': '#F3EDF7',
+        'md-surface-container-low': '#E7E0EC',
+        'md-outline': '#79747E',
+        'md-on-surface-variant': '#49454F',
+      },
+      fontFamily: {
+        sans: ['Roboto', 'sans-serif'],
+      },
+      transitionTimingFunction: {
+        'md': 'cubic-bezier(0.2, 0, 0, 1)',
+      }
+    },
   },
   plugins: [],
 }

@@ -31,15 +31,21 @@ export default function ResumeUpload({ onCandidatesExtracted, disabled }: Props)
   };
 
   return (
-    <div className={`bg-white p-6 rounded-lg shadow-sm border border-gray-200 ${disabled ? 'opacity-50 pointer-events-none' : ''}`}>
-      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-        <Upload className="w-5 h-5 text-blue-600" />
+    <div className={`bg-md-surface-container p-8 rounded-[24px] shadow-sm hover:shadow-md transition-all duration-300 ease-md ${disabled ? 'opacity-50 pointer-events-none grayscale-[50%]' : ''}`}>
+      <h2 className="text-2xl font-medium text-md-on-background mb-6 flex items-center gap-3">
+        <div className="p-2 bg-md-primary/10 rounded-full">
+          <Upload className="w-5 h-5 text-md-primary" />
+        </div>
         2. Resume Upload
       </h2>
       
-      {error && <div className="bg-red-50 text-red-600 p-3 rounded mb-4 text-sm">{error}</div>}
+      {error && (
+        <div className="bg-red-50/50 text-red-600 p-4 rounded-[12px] mb-6 text-sm border border-red-100">
+          {error}
+        </div>
+      )}
       
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 mb-4 hover:bg-gray-100 transition-colors">
+      <div className="group border-2 border-dashed border-md-outline/40 hover:border-md-primary/50 rounded-[24px] p-10 text-center bg-md-surface-container-low hover:bg-md-primary/5 transition-all duration-300 ease-md cursor-pointer flex flex-col items-center justify-center" onClick={() => !loading && !disabled && fileInputRef.current?.click()}>
         <input 
           type="file" 
           multiple 
@@ -48,36 +54,55 @@ export default function ResumeUpload({ onCandidatesExtracted, disabled }: Props)
           ref={fileInputRef}
           onChange={handleFileChange}
         />
+        
+        <div className="w-16 h-16 bg-md-surface-container rounded-full flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-md-primary/10 transition-all duration-300 ease-md shadow-sm">
+          {loading ? (
+             <svg className="animate-spin h-8 w-8 text-md-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+             </svg>
+          ) : (
+            <Upload className="w-8 h-8 text-md-on-surface-variant group-hover:text-md-primary transition-colors" />
+          )}
+        </div>
+        
         <button 
-          onClick={() => fileInputRef.current?.click()}
           disabled={loading || disabled}
-          className="bg-white border border-gray-300 text-gray-700 font-medium py-2 px-4 rounded shadow-sm hover:bg-gray-50 disabled:opacity-50"
+          className="bg-md-secondary-container text-md-on-secondary-container font-medium py-3 px-6 rounded-full shadow-sm hover:bg-md-secondary-container/80 hover:shadow-md active:scale-95 transition-all duration-300 ease-md pointer-events-none"
         >
           {loading ? 'Uploading & Extracting...' : 'Select PDF Resumes'}
         </button>
-        <p className="text-sm text-gray-500 mt-2">Only PDF files are supported.</p>
+        <p className="text-sm text-md-on-surface-variant mt-4">Only PDF files are supported.</p>
       </div>
 
       {candidates.length > 0 && (
-        <div className="space-y-3 mt-6">
-          <h3 className="font-medium text-gray-700 border-b pb-2">Uploaded Candidates ({candidates.length})</h3>
-          {candidates.map(c => (
-            <div key={c.candidate_id} className="bg-blue-50 border border-blue-100 p-3 rounded text-sm">
-              <div className="flex items-center gap-2 font-medium text-blue-900 mb-1">
-                <FileText className="w-4 h-4" />
-                {c.name || 'Unknown Candidate'}
-                <CheckCircle className="w-4 h-4 text-green-500 ml-auto" />
+        <div className="space-y-4 mt-8">
+          <h3 className="text-lg font-medium text-md-on-background border-b border-md-outline/20 pb-2">Uploaded Candidates ({candidates.length})</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            {candidates.map(c => (
+              <div key={c.candidate_id} className="group bg-md-surface p-4 rounded-2xl shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 ease-md border border-md-outline/10">
+                <div className="flex items-center gap-3 font-medium text-md-on-background mb-3">
+                  <div className="p-1.5 bg-md-secondary-container rounded-full text-md-on-secondary-container">
+                    <FileText className="w-4 h-4" />
+                  </div>
+                  {c.name || 'Unknown Candidate'}
+                  <CheckCircle className="w-5 h-5 text-md-primary ml-auto" />
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {c.skills.slice(0, 8).map((skill, i) => (
+                    <span key={i} className="bg-md-surface-container text-md-on-surface-variant text-xs font-medium px-3 py-1 rounded-full border border-md-outline/10">
+                      {skill}
+                    </span>
+                  ))}
+                  {c.skills.length > 8 && (
+                    <span className="text-xs font-medium px-3 py-1 text-md-tertiary">
+                      +{c.skills.length - 8} more
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="flex flex-wrap gap-1 mt-2">
-                {c.skills.slice(0, 10).map((skill, i) => (
-                  <span key={i} className="bg-white text-blue-800 text-xs px-2 py-0.5 rounded border border-blue-200">
-                    {skill}
-                  </span>
-                ))}
-                {c.skills.length > 10 && <span className="text-xs text-blue-600">+{c.skills.length - 10} more</span>}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
     </div>

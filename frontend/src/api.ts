@@ -33,6 +33,30 @@ export async function createJob(title: string, description: string): Promise<Job
   return res.json();
 }
 
+export async function fetchJobs(): Promise<Job[]> {
+  const res = await fetch(`${API_BASE}/api/jobs`);
+  if (!res.ok) throw new Error('Failed to fetch jobs');
+  return res.json();
+}
+
+export async function fetchJob(jobId: string): Promise<Job> {
+  const res = await fetch(`${API_BASE}/api/jobs/${jobId}`);
+  if (!res.ok) throw new Error('Failed to fetch job');
+  return res.json();
+}
+
+export async function fetchCandidates(): Promise<Candidate[]> {
+  const res = await fetch(`${API_BASE}/api/resumes`);
+  if (!res.ok) throw new Error('Failed to fetch candidates');
+  return res.json();
+}
+
+export async function fetchCandidate(candidateId: string): Promise<Candidate> {
+  const res = await fetch(`${API_BASE}/api/resumes/${candidateId}`);
+  if (!res.ok) throw new Error('Failed to fetch candidate');
+  return res.json();
+}
+
 export async function uploadResumes(files: FileList | File[]): Promise<Candidate[]> {
   const formData = new FormData();
   for (let i = 0; i < files.length; i++) {
