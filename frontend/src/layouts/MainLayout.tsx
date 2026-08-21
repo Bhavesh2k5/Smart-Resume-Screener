@@ -70,10 +70,14 @@ export default function MainLayout() {
                 }`
               }
             >
-              <div className={`p-1 rounded-full ${isActive ? 'bg-md-secondary-container' : ''}`}>
-                {item.icon}
-              </div>
-              <span className="text-[10px] mt-1 font-medium">{item.label}</span>
+              {({ isActive }) => (
+                <>
+                  <div className={`p-1 rounded-full ${isActive ? 'bg-md-secondary-container' : ''}`}>
+                    {item.icon}
+                  </div>
+                  <span className="text-[10px] mt-1 font-medium">{item.label}</span>
+                </>
+              )}
             </NavLink>
           ))}
       </div>
