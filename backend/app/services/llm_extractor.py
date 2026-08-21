@@ -52,8 +52,8 @@ Resume text:
             model='gemini-2.5-flash',
             contents=prompt,
             config=types.GenerateContentConfig(
-                temperature=0.2,
-                max_output_tokens=1024,
+                temperature=0.1,
+                response_mime_type="application/json",
             ),
         )
         response_text = response.text
@@ -66,8 +66,8 @@ Resume text:
             model='gemini-2.5-flash',
             contents=retry_prompt,
             config=types.GenerateContentConfig(
-                temperature=0.2,
-                max_output_tokens=1024,
+                temperature=0.1,
+                response_mime_type="application/json",
             ),
         )
         response_text = response.text

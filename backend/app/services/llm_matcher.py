@@ -60,7 +60,7 @@ Job description:
             contents=prompt,
             config=types.GenerateContentConfig(
                 temperature=0.2,
-                max_output_tokens=512,
+                response_mime_type="application/json",
             ),
         )
         response_text = response.text
@@ -74,7 +74,7 @@ Job description:
             contents=retry_prompt,
             config=types.GenerateContentConfig(
                 temperature=0.2,
-                max_output_tokens=512,
+                response_mime_type="application/json",
             ),
         )
         response_text = response.text

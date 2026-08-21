@@ -43,7 +43,10 @@ export async function uploadResumes(files: FileList | File[]): Promise<Candidate
     method: 'POST',
     body: formData,
   });
-  if (!res.ok) throw new Error('Failed to upload resumes');
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.detail || 'Failed to upload resumes');
+  }
   return res.json();
 }
 

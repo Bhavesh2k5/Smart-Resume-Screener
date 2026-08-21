@@ -6,6 +6,10 @@ class JobCreate(BaseModel):
     title: str
     description: str
 
+class JobUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+
 class JobResponse(BaseModel):
     job_id: UUID
     title: str
@@ -19,6 +23,13 @@ class Experience(BaseModel):
 class Education(BaseModel):
     degree: str
     institution: str
+
+class CandidateUpdate(BaseModel):
+    name: Optional[str] = None
+    skills: Optional[List[str]] = None
+    experience: Optional[List[dict]] = None
+    education: Optional[List[dict]] = None
+    summary: Optional[str] = None
 
 class CandidateResponse(BaseModel):
     candidate_id: UUID
@@ -35,6 +46,10 @@ class MatchRequest(BaseModel):
 class BatchMatchRequest(BaseModel):
     job_id: UUID
     candidate_ids: List[UUID]
+
+class MatchUpdate(BaseModel):
+    score: Optional[int] = None
+    justification: Optional[str] = None
 
 class MatchResponse(BaseModel):
     match_id: UUID

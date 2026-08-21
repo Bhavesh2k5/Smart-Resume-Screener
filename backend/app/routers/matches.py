@@ -93,3 +93,59 @@ def match_batch(request: schemas.BatchMatchRequest, db: Session = Depends(get_db
             justification=m.justification
         ) for m in results
     ]
+
+@router.get("", response_model=List[schemas.MatchResponse])
+def list_matches(db: Session = Depends(get_db)):
+    matches = db.query(models.Match).all()
+    return [
+        schemas.MatchResponse(
+            match_id=m.id,
+            candidate_id=m.candidate_id,
+            job_id=m.job_id,
+            score=m.score,
+            justification=m.justification
+        ) for m in matches
+    ]
+
+@router.get("/{match_id}", response_model=schemas.MatchResponse)
+def get_match(match_id: str, db: Session = Depends(get_db)):
+    m = db.query(models.Match).filter(models.Match.id == match_id).first()
+    if not m:
+        raise HTTPException(status_code=404, detail="Match not found")
+    return schemas.MatchResponse(
+        match_id=m.id,
+        candidate_id=m.candidate_id,
+        job_id=m.job_id,
+        score=m.score,
+        justification=m.justification
+    )
+
+@router.put("/{match_id}", response_model=schemas.MatchResponse)
+def update_match(match_id: str, match_update: schemas.MatchUpdate, db: Session = Depends(get_db)):
+    m = db.query(models.Match).filter(models.Match.id == match_id).first()
+    if not m:
+        raise HTTPException(status_code=404, detail="Match not found")
+    
+    if match_update.score is not None:
+        m.score = match_update.score
+    if match_update.justification is not None:
+        m.justification = match_update.justification
+        
+    db.commit()
+    db.refresh(m)
+    return schemas.MatchResponse(
+        match_id=m.id,
+        candidate_id=m.candidate_id,
+        job_id=m.job_id,
+        score=m.score,
+        justification=m.justification
+    )
+
+@router.delete("/{match_id}", status_code=204)
+def delete_match(match_id: str, db: Session = Depends(get_db)):
+    m = db.query(models.Match).filter(models.Match.id == match_id).first()
+    if not m:
+        raise HTTPException(status_code=404, detail="Match not found")
+    db.delete(m)
+    db.commit()
+    return None
