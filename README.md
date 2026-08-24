@@ -1,5 +1,7 @@
 # Smart Resume Screener
 
+**🔴 Live Demo:** [https://smart-resume-screener-olive.vercel.app](https://smart-resume-screener-olive.vercel.app)
+
 An AI-powered, full-stack application built to intelligently parse resumes (PDFs) and match them with specific job descriptions using a semantic matching engine powered by Gemini.
 
 ## Table of Contents
