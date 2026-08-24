@@ -1,61 +1,50 @@
 # Smart Resume Screener
 
-Intelligently parse resumes, extract skills, and match them with job descriptions using an LLM.
+An AI-powered, full-stack application built to intelligently parse resumes (PDFs) and match them with specific job descriptions using a semantic matching engine powered by Gemini.
 
-## Architecture Diagram
+## Table of Contents
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [LLM Prompts](#llm-prompts)
+- [How to Run (Docker)](#how-to-run-docker)
+- [Features](#features)
 
-```
-                        ┌─────────────────────┐
-                        │   Frontend Dashboard │
-                        │  (React + Tailwind)  │
-                        └──────────┬───────────┘
-                                   │ REST/JSON
-                        ┌──────────▼───────────┐
-                        │     Backend API      │
-                        │ (Python / FastAPI)   │
-                        └───┬───────────┬───────┘
-                            │           │
-              ┌─────────────▼──┐   ┌────▼─────────────┐
-              │ Resume Parser  │   │  LLM Match Engine │
-              │ (pdfplumber)   │   │  (Gemini API)     │
-              └─────────────┬──┘   └────┬─────────────┘
-                            │           │
-                        ┌───▼───────────▼───┐
-                        │      Database     │
-                        │ (PostgreSQL)      │
-                        └───────────────────┘
-```
+## Architecture
+
+The application is structured as a decoupled full-stack application running in Docker containers, utilizing a PostgreSQL database for persistence.
+
+### Components
+1. **Frontend (React + Vite + Tailwind CSS)**: 
+   - A multi-page Single Page Application (SPA) utilizing `react-router-dom`.
+   - Designed with **Material You (MD3)** design principles (tonal surfaces, rounded cards, transition states).
+   - Pages: Dashboard, Jobs List, Candidate Talent Pool, Job Details, and a unified Smart Screener workspace.
+   - Features client-side file reading, Excel exports (`xlsx`), and responsive layout components.
+
+2. **Backend (FastAPI + Python)**:
+   - A high-performance REST API.
+   - Handles PDF parsing (using `pdfplumber`).
+   - Integrates with the Google Gemini API (`google-genai` SDK) to extract structured JSON data from resumes and compute matching scores against job descriptions.
+   - Utilizes `SQLAlchemy` (with Alembic for migrations) to interface with the PostgreSQL database.
+   - Features robust error handling, JSON repair fallback mechanisms for LLM outputs, and CORS support.
+
+3. **Database (PostgreSQL)**:
+   - Stores normalized data models: `jobs`, `candidates`, and `matches`.
+   - The `matches` table maps a many-to-many relationship containing the computed matching score and the LLM-generated justification.
 
 ## Tech Stack
-- **Backend:** Python 3.11, FastAPI
-- **Database:** PostgreSQL, SQLAlchemy, Alembic
-- **LLM provider:** Gemini API (substituted from Anthropic Claude API as requested)
-- **PDF parsing:** pdfplumber
-- **Frontend:** React (Vite) + TypeScript + Tailwind CSS
+- **Frontend**: React 18, Vite, Tailwind CSS 3.4, React Router 6, Lucide React (Icons), XLSX (Excel Export).
+- **Backend**: FastAPI, Uvicorn, SQLAlchemy, Alembic, PDFPlumber, Google GenAI SDK (Gemini 2.5 Flash).
+- **Database**: PostgreSQL 15.
+- **Infrastructure**: Docker, Docker Compose.
 
-## Setup Instructions
+## LLM Prompts
 
-1. `cp .env.example .env` and fill in `GEMINI_API_KEY`
-2. `docker-compose up --build -d`
-3. Wait for the database to be ready. Then run the migrations:
-   ```bash
-   docker-compose exec backend alembic upgrade head
-   ```
-4. Access the frontend at `http://localhost:5173`
-5. Access the backend Swagger UI at `http://localhost:8000/docs`
+The core intelligence of the application relies on two carefully crafted prompts sent to the `gemini-2.5-flash` model. We strictly enforce `response_mime_type="application/json"` to ensure programmatic interoperability.
 
-## API Reference
+### 1. Data Extraction Prompt (Resume Parsing)
+This prompt converts unstructured PDF text into a predictable JSON schema representing a candidate's profile.
 
-- `POST /api/jobs` - Create a job description
-- `POST /api/resumes/upload` - Upload PDF resumes and extract structured data
-- `POST /api/match` - Match a single candidate against a job
-- `POST /api/match/batch` - Run batch matching for multiple candidates
-- `GET /api/jobs/{job_id}/shortlist` - Get ranked shortlist
-
-## Exact LLM Prompts Used
-
-### Extraction Prompt
-```
+```text
 You are a resume parser. Extract the following from this resume text
 and return ONLY valid JSON, no commentary, no markdown code fences:
 
@@ -71,8 +60,10 @@ Resume text:
 <<<{resume_text}>>>
 ```
 
-### Match Scoring Prompt
-```
+### 2. Semantic Matching Prompt (Fit Scoring)
+This prompt compares the structured candidate profile against a raw job description string to determine a semantic fit score and a human-readable justification.
+
+```text
 Compare the following candidate profile with this job description
 and rate fit on a scale of 1 to 10. Return ONLY valid JSON, no
 commentary, no markdown code fences:
@@ -89,17 +80,27 @@ Job description:
 <<<{job_description}>>>
 ```
 
-## Sample Input / Output
-- **Input**: A PDF file and a text-based job description.
-- **Output**: JSON containing a match score out of 10 and a textual justification for the score.
+## How to Run (Docker)
 
-## Known Limitations
-- Batch matching is sequential, not parallelized.
-- PDF parsing may fail on scanned/image-only resumes.
-- We swapped the Anthropic API for the Gemini API as per user constraints.
+1. **Clone the repository.**
+2. **Set up Environment Variables**:
+   Create a `.env` file in the root directory and add your Google Gemini API key:
+   ```env
+   GEMINI_API_KEY=your_api_key_here
+   ```
+3. **Build and Run with Docker Compose**:
+   ```bash
+   docker-compose up --build
+   ```
+4. **Access the Application**:
+   - Frontend: [http://localhost:5173](http://localhost:5173)
+   - Backend API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-## Testing Instructions
-Run tests in the backend folder or container:
-```bash
-docker-compose exec backend pytest tests/
-```
+*Note: The database migrations are applied automatically upon backend startup via the `entrypoint.sh` script.*
+
+## Features
+- **Job Management**: Create, read, and delete job postings.
+- **Candidate Talent Pool**: Bulk-upload PDFs to instantly parse and store candidates in a searchable database.
+- **AI Matching**: Compute match scores and read justifications explaining *why* a candidate fits a role.
+- **Excel Export**: Download shortlisted candidates to a cleanly formatted `.xlsx` spreadsheet directly from the Job Details page.
+- **Smart Screener Workspace**: A unified workflow to create a job, upload resumes, and view results in one step.
