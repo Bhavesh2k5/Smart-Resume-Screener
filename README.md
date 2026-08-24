@@ -1,52 +1,109 @@
-# Smart Resume Screener
+<div align="center">
 
-**🔴 Live Demo:** [https://smart-resume-screener-olive.vercel.app](https://smart-resume-screener-olive.vercel.app)
+# 🧠 Smart Resume Screener
 
-An AI-powered, full-stack application built to intelligently parse resumes (PDFs) and match them with specific job descriptions using a semantic matching engine powered by Gemini.
+### *AI-powered hiring intelligence, built for the modern recruiter.*
 
-## Table of Contents
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [LLM Prompts](#llm-prompts)
-- [How to Run (Docker)](#how-to-run-docker)
-- [Features](#features)
+<br/>
 
-## Architecture
+[![Live Demo](https://img.shields.io/badge/🚀%20Live%20Demo-smart--resume--screener-6750A4?style=for-the-badge&logoColor=white)](https://smart-resume-screener-olive.vercel.app)
+[![GitHub](https://img.shields.io/badge/GitHub-Bhavesh2k5-181717?style=for-the-badge&logo=github)](https://github.com/Bhavesh2k5/Smart-Resume-Screener)
+[![Backend](https://img.shields.io/badge/API-FastAPI-009688?style=for-the-badge&logo=fastapi)](https://resume-screener-api-67ap.onrender.com/docs)
+[![Powered By](https://img.shields.io/badge/Powered%20By-Gemini%202.5%20Flash-4285F4?style=for-the-badge&logo=google)](https://deepmind.google/technologies/gemini/)
 
-The application is structured as a decoupled full-stack application running in Docker containers, utilizing a PostgreSQL database for persistence.
+<br/>
 
-### Components
-1. **Frontend (React + Vite + Tailwind CSS)**: 
-   - A multi-page Single Page Application (SPA) utilizing `react-router-dom`.
-   - Designed with **Material You (MD3)** design principles (tonal surfaces, rounded cards, transition states).
-   - Pages: Dashboard, Jobs List, Candidate Talent Pool, Job Details, and a unified Smart Screener workspace.
-   - Features client-side file reading, Excel exports (`xlsx`), and responsive layout components.
+> Upload a job description. Drop in resumes. Get an AI-ranked shortlist in seconds.  
+> No spreadsheets. No manual screening. Just results.
 
-2. **Backend (FastAPI + Python)**:
-   - A high-performance REST API.
-   - Handles PDF parsing (using `pdfplumber`).
-   - Integrates with the Google Gemini API (`google-genai` SDK) to extract structured JSON data from resumes and compute matching scores against job descriptions.
-   - Utilizes `SQLAlchemy` (with Alembic for migrations) to interface with the PostgreSQL database.
-   - Features robust error handling, JSON repair fallback mechanisms for LLM outputs, and CORS support.
+<br/>
 
-3. **Database (PostgreSQL)**:
-   - Stores normalized data models: `jobs`, `candidates`, and `matches`.
-   - The `matches` table maps a many-to-many relationship containing the computed matching score and the LLM-generated justification.
+![Demo Banner](https://img.shields.io/badge/React-Vite-61DAFB?style=flat-square&logo=react) ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white) ![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white) ![Gemini](https://img.shields.io/badge/Gemini%202.5%20Flash-4285F4?style=flat-square&logo=google&logoColor=white)
 
-## Tech Stack
-- **Frontend**: React 18, Vite, Tailwind CSS 3.4, React Router 6, Lucide React (Icons), XLSX (Excel Export).
-- **Backend**: FastAPI, Uvicorn, SQLAlchemy, Alembic, PDFPlumber, Google GenAI SDK (Gemini 2.5 Flash).
-- **Database**: PostgreSQL 15.
-- **Infrastructure**: Docker, Docker Compose.
+</div>
 
-## LLM Prompts
+---
 
-The core intelligence of the application relies on two carefully crafted prompts sent to the `gemini-2.5-flash` model. We strictly enforce `response_mime_type="application/json"` to ensure programmatic interoperability.
+## ✨ What Makes This Special?
 
-### 1. Data Extraction Prompt (Resume Parsing)
-This prompt converts unstructured PDF text into a predictable JSON schema representing a candidate's profile.
+<table>
+<tr>
+<td width="50%">
 
-```text
+### 🤖 AI-Driven Parsing
+Drop in any PDF resume and Gemini 2.5 Flash instantly extracts structured data — name, skills, experience, education, and a concise summary — all formatted as clean, queryable JSON.
+
+</td>
+<td width="50%">
+
+### 🎯 Semantic Matching
+Forget keyword matching. Our LLM engine *understands* job descriptions and candidate profiles, rating fit on a **1–10 scale** with a written justification of strengths and gaps.
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### 📊 Excel Export
+One-click export of your entire shortlisted talent pool to a beautifully formatted `.xlsx` spreadsheet, automatically named after the job role.
+
+</td>
+<td width="50%">
+
+### 🎨 Material You Design
+A stunning, fully responsive UI built on Google's **Material Design 3** system — organic blur shapes, tonal surfaces, pill buttons, and smooth transitions throughout.
+
+</td>
+</tr>
+</table>
+
+---
+
+## 🏗️ System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         USER BROWSER                        │
+│          React 18 + Vite + Tailwind CSS (Material You)      │
+│   Dashboard │ Jobs │ Candidates │ Job Detail │ Screener     │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ REST API (VITE_API_URL)
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    FASTAPI BACKEND                          │
+│                                                             │
+│  ┌─────────────┐   ┌──────────────┐   ┌────────────────┐   │
+│  │ PDF Parser  │──▶│ LLM Extractor│──▶│  LLM Matcher   │   │
+│  │ (pdfplumber)│   │   (Gemini)   │   │   (Gemini)     │   │
+│  └─────────────┘   └──────────────┘   └────────────────┘   │
+│                           │                    │            │
+│                           ▼                    ▼            │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │              SQLAlchemy ORM + Alembic                  │ │
+│  └──────────────────────────┬─────────────────────────────┘ │
+└─────────────────────────────┼───────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      POSTGRESQL DB                          │
+│                                                             │
+│    ┌──────────┐    ┌─────────────┐    ┌──────────────┐     │
+│    │   jobs   │───▶│   matches   │◀───│  candidates  │     │
+│    │          │    │ score, why  │    │  skills, exp │     │
+│    └──────────┘    └─────────────┘    └──────────────┘     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🔬 LLM Prompt Engineering
+
+The two core prompts are designed with strict JSON enforcement (`response_mime_type="application/json"`) and temperature tuning for precision and consistency.
+
+<details>
+<summary><b>📄 Prompt 1 — Resume Extraction (temp: 0.1)</b></summary>
+
+```
 You are a resume parser. Extract the following from this resume text
 and return ONLY valid JSON, no commentary, no markdown code fences:
 
@@ -62,10 +119,14 @@ Resume text:
 <<<{resume_text}>>>
 ```
 
-### 2. Semantic Matching Prompt (Fit Scoring)
-This prompt compares the structured candidate profile against a raw job description string to determine a semantic fit score and a human-readable justification.
+> **Why it works:** Low temperature (0.1) enforces deterministic, factual extraction. The `<<<` delimiters clearly separate the instruction from the user-supplied content to prevent prompt injection.
 
-```text
+</details>
+
+<details>
+<summary><b>🎯 Prompt 2 — Semantic Fit Scoring (temp: 0.2)</b></summary>
+
+```
 Compare the following candidate profile with this job description
 and rate fit on a scale of 1 to 10. Return ONLY valid JSON, no
 commentary, no markdown code fences:
@@ -82,27 +143,83 @@ Job description:
 <<<{job_description}>>>
 ```
 
-## How to Run (Docker)
+> **Why it works:** The structured JSON candidate profile gives Gemini a clean semantic understanding of the candidate. Requesting a written `justification` forces the model to reason before scoring, improving accuracy. The score is clamped server-side to `[1, 10]` as a safety net.
 
-1. **Clone the repository.**
-2. **Set up Environment Variables**:
-   Create a `.env` file in the root directory and add your Google Gemini API key:
-   ```env
-   GEMINI_API_KEY=your_api_key_here
-   ```
-3. **Build and Run with Docker Compose**:
-   ```bash
-   docker-compose up --build
-   ```
-4. **Access the Application**:
-   - Frontend: [http://localhost:5173](http://localhost:5173)
-   - Backend API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+</details>
 
-*Note: The database migrations are applied automatically upon backend startup via the `entrypoint.sh` script.*
+---
 
-## Features
-- **Job Management**: Create, read, and delete job postings.
-- **Candidate Talent Pool**: Bulk-upload PDFs to instantly parse and store candidates in a searchable database.
-- **AI Matching**: Compute match scores and read justifications explaining *why* a candidate fits a role.
-- **Excel Export**: Download shortlisted candidates to a cleanly formatted `.xlsx` spreadsheet directly from the Job Details page.
-- **Smart Screener Workspace**: A unified workflow to create a job, upload resumes, and view results in one step.
+## 🧰 Tech Stack
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| **UI Framework** | React 18 + Vite | Fast, modern SPA |
+| **Styling** | Tailwind CSS 3.4 + Material You | Visual design system |
+| **Routing** | React Router 6 | Multi-page navigation |
+| **Icons** | Lucide React | Consistent icon set |
+| **Excel Export** | SheetJS (xlsx) | Client-side spreadsheet generation |
+| **API** | FastAPI + Uvicorn | High-performance Python backend |
+| **ORM** | SQLAlchemy + Alembic | Database abstraction & migrations |
+| **PDF Parsing** | pdfplumber | Text extraction from resumes |
+| **AI** | Google Gemini 2.5 Flash | Resume parsing & semantic matching |
+| **Database** | PostgreSQL 15 | Relational data persistence |
+| **Containers** | Docker + Docker Compose | Local development environment |
+
+---
+
+## 🚀 Run It Locally (2 minutes)
+
+**Prerequisites:** Docker Desktop installed and running.
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Bhavesh2k5/Smart-Resume-Screener.git
+cd Smart-Resume-Screener
+
+# 2. Create your environment file
+cp .env.example .env
+# Then open .env and add your GEMINI_API_KEY
+
+# 3. Launch everything with one command
+docker-compose up --build
+```
+
+| Service | URL |
+|---|---|
+| 🖥️ Frontend App | http://localhost:5173 |
+| ⚙️ Backend API | http://localhost:8000 |
+| 📖 API Swagger Docs | http://localhost:8000/docs |
+
+> Database migrations run automatically on backend startup. No manual setup needed!
+
+---
+
+## 📱 App Pages
+
+| Page | Description |
+|---|---|
+| **🏠 Dashboard** | Overview metrics — total jobs, candidates, and recent activity |
+| **💼 Jobs** | Create, browse, and delete job postings |
+| **🔍 Job Detail** | Upload resumes for a specific job, view AI match scores, export to Excel |
+| **👥 Talent Pool** | Searchable database of all parsed candidates with skill filtering |
+| **⚡ Smart Screener** | Unified 3-step workspace: create job → upload resumes → view results |
+
+---
+
+## 🌐 Deployment
+
+| Service | Provider | URL |
+|---|---|---|
+| Frontend | Vercel | [smart-resume-screener-olive.vercel.app](https://smart-resume-screener-olive.vercel.app) |
+| Backend API | Render | [resume-screener-api-67ap.onrender.com](https://resume-screener-api-67ap.onrender.com/docs) |
+| Database | Neon (PostgreSQL) | Managed serverless Postgres |
+
+---
+
+<div align="center">
+
+Built with ❤️ by **Bhavesh**  
+
+*Powered by Google Gemini · Deployed on Vercel & Render*
+
+</div>
