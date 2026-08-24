@@ -22,7 +22,7 @@ export default function Screener() {
       </header>
 
       <div className="space-y-12 max-w-4xl">
-        <JobForm onJobCreated={setJob} />
+        <JobForm onJobSelected={setJob} />
 
         <ResumeUpload 
           onCandidatesExtracted={(newCandidates) => setCandidates(prev => [...prev, ...newCandidates])} 

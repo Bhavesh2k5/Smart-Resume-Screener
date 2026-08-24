@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchJob, fetchShortlist, uploadResumes, runBatchMatch, Job, MatchResult } from '../api';
-import { Briefcase, ArrowLeft, Star, Upload } from 'lucide-react';
+import { Briefcase, ArrowLeft, Star, Upload, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
 
 export default function JobDetail() {
   const { id } = useParams<{ id: string }>();
@@ -31,14 +32,11 @@ export default function JobDetail() {
     
     setUploading(true);
     try {
-      // 1. Upload Resumes
       const candidates = await uploadResumes(e.target.files);
       const candidateIds = candidates.map(c => c.candidate_id);
       
-      // 2. Run Batch Match
       if (candidateIds.length > 0) {
         await runBatchMatch(id, candidateIds);
-        // 3. Refresh Shortlist
         const newShortlist = await fetchShortlist(id);
         setShortlist(newShortlist);
       }
@@ -49,6 +47,30 @@ export default function JobDetail() {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
+  };
+
+  const handleExport = () => {
+    if (!job || shortlist.length === 0) return;
+    
+    const data = shortlist
+      .sort((a, b) => b.score - a.score)
+      .map(cand => ({
+        Name: cand.name || 'Unknown Candidate',
+        Score: cand.score,
+        'Matched Skills': cand.skills.join(', '),
+        Justification: cand.justification
+      }));
+      
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    
+    // Excel sheet names are limited to 31 characters
+    let sheetName = job.title.substring(0, 31);
+    // Remove invalid characters for sheet names (\, /, ?, *, [, ])
+    sheetName = sheetName.replace(/[\/\\\?\*\[\]]/g, '');
+    
+    XLSX.utils.book_append_sheet(wb, ws, sheetName || 'Candidates');
+    XLSX.writeFile(wb, `${job.title} - Candidates.xlsx`);
   };
 
   if (loading) return <div className="p-8 animate-pulse text-md-on-surface-variant">Loading job details...</div>;
@@ -96,7 +118,7 @@ export default function JobDetail() {
                 ) : (
                   <Upload className="w-5 h-5" />
                 )}
-                {uploading ? 'Processing...' : 'Upload Resumes & Match'}
+                {uploading ? 'Processing...' : 'Upload & Match'}
               </button>
            </div>
         </div>
@@ -110,9 +132,21 @@ export default function JobDetail() {
       </div>
 
       <div>
-        <h2 className="text-2xl font-bold text-md-on-background mb-6 flex items-center gap-2">
-          <Star className="w-6 h-6 text-md-tertiary" /> Shortlisted Candidates
-        </h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-md-on-background flex items-center gap-2">
+            <Star className="w-6 h-6 text-md-tertiary" /> Shortlisted Candidates
+          </h2>
+          
+          {shortlist.length > 0 && (
+            <button 
+              onClick={handleExport}
+              className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-full bg-md-surface-container-high text-md-on-surface hover:bg-md-surface-container-highest active:scale-95 transition-all shadow-sm border border-md-outline/10 text-sm font-medium"
+            >
+              <Download className="w-4 h-4" />
+              Export Excel
+            </button>
+          )}
+        </div>
         
         {shortlist.length > 0 ? (
           <div className="space-y-4">

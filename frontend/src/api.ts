@@ -45,6 +45,13 @@ export async function fetchJob(jobId: string): Promise<Job> {
   return res.json();
 }
 
+export async function deleteJob(jobId: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/jobs/${jobId}`, {
+    method: 'DELETE'
+  });
+  if (!res.ok) throw new Error('Failed to delete job');
+}
+
 export async function fetchCandidates(): Promise<Candidate[]> {
   const res = await fetch(`${API_BASE}/api/resumes`);
   if (!res.ok) throw new Error('Failed to fetch candidates');
@@ -55,6 +62,13 @@ export async function fetchCandidate(candidateId: string): Promise<Candidate> {
   const res = await fetch(`${API_BASE}/api/resumes/${candidateId}`);
   if (!res.ok) throw new Error('Failed to fetch candidate');
   return res.json();
+}
+
+export async function deleteCandidate(candidateId: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/resumes/${candidateId}`, {
+    method: 'DELETE'
+  });
+  if (!res.ok) throw new Error('Failed to delete candidate');
 }
 
 export async function uploadResumes(files: FileList | File[]): Promise<Candidate[]> {

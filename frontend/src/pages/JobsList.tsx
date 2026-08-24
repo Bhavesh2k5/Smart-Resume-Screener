@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { fetchJobs, Job } from '../api';
+import { fetchJobs, deleteJob, Job } from '../api';
 import { Link } from 'react-router-dom';
-import { Briefcase, Plus, ChevronRight } from 'lucide-react';
+import { Briefcase, Plus, ChevronRight, Trash2 } from 'lucide-react';
 
 export default function JobsList() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -10,6 +10,18 @@ export default function JobsList() {
   useEffect(() => {
     fetchJobs().then(setJobs).finally(() => setLoading(false));
   }, []);
+
+  const handleDelete = async (e: React.MouseEvent, id: string) => {
+    e.preventDefault(); // Prevent navigating to JobDetail
+    if (!confirm('Are you sure you want to delete this job and all its matches?')) return;
+    
+    try {
+      await deleteJob(id);
+      setJobs(jobs.filter(j => j.job_id !== id));
+    } catch (err) {
+      alert('Failed to delete job.');
+    }
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -34,10 +46,19 @@ export default function JobsList() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {jobs.map(job => (
-            <Link key={job.job_id} to={`/jobs/${job.job_id}`} className="group block">
+            <Link key={job.job_id} to={`/jobs/${job.job_id}`} className="group block relative">
               <div className="bg-md-surface-container h-full p-6 rounded-[24px] shadow-sm hover:shadow-md hover:scale-[1.02] transition-all duration-300 ease-md border border-md-outline/5 flex flex-col">
-                <div className="p-3 bg-md-primary/10 rounded-full w-fit mb-4 text-md-primary group-hover:bg-md-primary group-hover:text-white transition-colors">
-                  <Briefcase className="w-6 h-6" />
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-3 bg-md-primary/10 rounded-full text-md-primary group-hover:bg-md-primary group-hover:text-white transition-colors">
+                    <Briefcase className="w-6 h-6" />
+                  </div>
+                  <button 
+                    onClick={(e) => handleDelete(e, job.job_id)}
+                    className="p-2 text-md-on-surface-variant hover:text-red-600 hover:bg-red-50 rounded-full transition-colors opacity-0 group-hover:opacity-100"
+                    title="Delete Job"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
                 </div>
                 <h2 className="text-xl font-semibold text-md-on-background mb-2 line-clamp-1">{job.title}</h2>
                 <p className="text-sm text-md-on-surface-variant line-clamp-3 mb-6 flex-1">{job.description}</p>
